@@ -277,10 +277,10 @@ get_china_speedtest_servers() {
         | sed -nE 's/^[[:space:]]*([0-9]+).*/\1/p'
 }
 
-# 函数：从 Ookla server list 中筛选中国境内不限运营商节点
-get_any_china_speedtest_servers() {
+# 函数：从 Ookla server list 中筛选香港节点
+get_hongkong_speedtest_servers() {
     local server_output
-    local china_pattern='(China|Beijing|Shanghai|Guangzhou|Shenzhen|Hangzhou|Nanjing|Wuhan|Chengdu|Chongqing|Tianjin|Xi.?an|Zhengzhou|Changsha|Jinan|Qingdao|Fuzhou|Xiamen|Hefei|Suzhou|Ningbo|Dongguan|Foshan|中国|北京|上海|广州|深圳|杭州|南京|武汉|成都|重庆|天津|西安|郑州|长沙|济南|青岛|福州|厦门|合肥|苏州|宁波|东莞|佛山)'
+    local hongkong_pattern='(Hong[ -]?Kong|Hongkong|香港|HKBN|HKT|CMHK|SmarTone|HGC|PCCW|Netvigator)'
 
     server_output=$(speedtest --accept-license --accept-gdpr --servers 2>/dev/null || true)
     if [[ -z "$server_output" ]]; then
@@ -288,7 +288,7 @@ get_any_china_speedtest_servers() {
     fi
 
     echo "$server_output" \
-        | grep -Ei "$china_pattern" \
+        | grep -Ei "$hongkong_pattern" \
         | sed -nE 's/^[[:space:]]*([0-9]+).*/\1/p'
 }
 
@@ -308,11 +308,11 @@ run_speedtest_measurement() {
     local attempt=0
     servers_list=$(get_china_speedtest_servers "$SPEEDTEST_ISP_PATTERN" | head -n 10)
     if [[ -z "$servers_list" ]]; then
-        echo -e "\033[33m⚠ 未找到匹配运营商的中国境内节点，改用中国境内不限运营商节点。\033[0m"
-        servers_list=$(get_any_china_speedtest_servers | head -n 10)
+        echo -e "\033[33m⚠ 未找到匹配运营商的中国境内节点，改用香港节点。\033[0m"
+        servers_list=$(get_hongkong_speedtest_servers | head -n 10)
     fi
     if [[ -z "$servers_list" ]]; then
-        echo -e "\033[33m⚠ 未找到中国境内节点，改用 Ookla 自动选择。\033[0m"
+        echo -e "\033[33m⚠ 未找到香港节点，改用 Ookla 自动选择。\033[0m"
         servers_list="auto"
     fi
 
